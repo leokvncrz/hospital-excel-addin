@@ -11,10 +11,12 @@ namespace hospitalAddIn
         }
 
         private void convertBtn_Click(object sender, RibbonControlEventArgs e) {
-            MessageBox.Show("Convert Clicked");
+            var convertCode = new ConvertCodes(Config.getConvertCodeConfig());
+            convertCode.start();
         }
         private void highlightBtn_Click(object sender, RibbonControlEventArgs e) {
-            MessageBox.Show("Highlight Clicked");
+            var highlightKeywords = new HighlightKeywords();
+            highlightKeywords.run();
         }
     }
 }
