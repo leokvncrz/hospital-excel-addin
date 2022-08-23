@@ -68,6 +68,7 @@
             this.startConvertBtn.TabIndex = 0;
             this.startConvertBtn.Text = "CONVERT CODES";
             this.startConvertBtn.UseVisualStyleBackColor = false;
+            this.startConvertBtn.Click += new System.EventHandler(this.startConvertBtn_Click);
             // 
             // icdCodesFilePath
             // 
@@ -95,6 +96,7 @@
             this.button1.Size = new System.Drawing.Size(20, 20);
             this.button1.TabIndex = 3;
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // groupBox1
             // 
@@ -321,12 +323,13 @@
             this.button2.Size = new System.Drawing.Size(20, 20);
             this.button2.TabIndex = 3;
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // ConvertConfigForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(361, 389);
+            this.ClientSize = new System.Drawing.Size(361, 391);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.startConvertBtn);
@@ -343,8 +346,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button startConvertBtn;
         private System.Windows.Forms.Label icdFilePathLabel;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -369,5 +370,6 @@
         public System.Windows.Forms.TextBox cptTextColumn;
         public System.Windows.Forms.TextBox cptRowStart;
         public System.Windows.Forms.TextBox cptRowEnd;
+        public System.Windows.Forms.Button startConvertBtn;
     }
 }

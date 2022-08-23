@@ -1,5 +1,4 @@
 ﻿using Microsoft.Office.Tools.Ribbon;
-using System.Windows.Forms;
 
 namespace hospitalAddIn
 {
@@ -12,7 +11,7 @@ namespace hospitalAddIn
 
         private void convertBtn_Click(object sender, RibbonControlEventArgs e) {
             var convertCode = new ConvertCodes(Config.getConvertCodeConfig());
-            convertCode.start();
+            convertCode.Start();
         }
         private void highlightBtn_Click(object sender, RibbonControlEventArgs e) {
             var highlightKeywords = new HighlightKeywords();

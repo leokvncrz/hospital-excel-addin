@@ -26,5 +26,36 @@ namespace hospitalAddIn.Forms
                 tbSender.Text = tbSender.Text.Remove(tbSender.Text.Length - 1);
             }
         }
+
+        private void startConvertBtn_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // Open File Path
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.DefaultExt = "xlsx";
+            fileDialog.CheckFileExists = true;
+            fileDialog.CheckPathExists = true;
+            if (fileDialog.ShowDialog() == DialogResult.OK) { 
+                icdCodesFilePath.Text = fileDialog.FileName;
+            }
+            
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            // Open File Path
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.DefaultExt = "xlsx";
+            fileDialog.CheckFileExists = true;
+            fileDialog.CheckPathExists = true;
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                cptCodesFilePath.Text = fileDialog.FileName;
+            }
+        }
     }
 }
