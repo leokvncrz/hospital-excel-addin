@@ -16,7 +16,7 @@ namespace hospitalAddIn
         {
             this.config = config;
             form = new ConvertConfigForm();
-            form.startConvertBtn.Click += run;
+            form.startConvertBtn.Click += Run;
         }
 
         public void Start() {
@@ -35,7 +35,7 @@ namespace hospitalAddIn
             form.ShowDialog();
         }
 
-        public async void run(object sender, EventArgs e) {
+        public async void Run(object sender, EventArgs e) {
             // Disable Button
             form.startConvertBtn.Enabled = false;
 
@@ -72,6 +72,7 @@ namespace hospitalAddIn
 
                 Config.saveConvertCodesConfig(config);
                 form.Close();
+                MessageBox.Show("Done");
             }
             else {
                 MessageBox.Show("Invalid Code File Path");

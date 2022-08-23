@@ -16,5 +16,18 @@ namespace hospitalAddIn.Forms
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // Open File Path
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.DefaultExt = "xlsx";
+            fileDialog.CheckFileExists = true;
+            fileDialog.CheckPathExists = true;
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                keywordsFilePath.Text = fileDialog.FileName;
+            }
+        }
     }
 }

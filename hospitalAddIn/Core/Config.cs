@@ -52,11 +52,14 @@ namespace hospitalAddIn
         }
 
         public static HighlightKeywordsConfigModel getHighlightKeywordsConfig() {
-            return new HighlightKeywordsConfigModel();
+            var config = new HighlightKeywordsConfigModel();
+            // Read Config File
+            overridefromConfig("keywordsFilePath", ref config.keywordsFilePath);
+            return config;
         }
 
-        public static void saveHighlightKeywordsConfig(HighlightKeywordsConfigModel config) { 
-        
+        public static void saveHighlightKeywordsConfig(HighlightKeywordsConfigModel config) {
+            ConfigurationManager.AppSettings["keywordsFilePath"] = config.keywordsFilePath;
         }
     }
 }

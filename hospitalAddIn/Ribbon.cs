@@ -14,8 +14,8 @@ namespace hospitalAddIn
             convertCode.Start();
         }
         private void highlightBtn_Click(object sender, RibbonControlEventArgs e) {
-            var highlightKeywords = new HighlightKeywords();
-            highlightKeywords.run();
+            var highlightKeywords = new HighlightKeywords(Config.getHighlightKeywordsConfig());
+            highlightKeywords.Start();
         }
     }
 }
