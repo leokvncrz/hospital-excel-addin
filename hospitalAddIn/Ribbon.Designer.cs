@@ -36,8 +36,8 @@
         {
             this.tab1 = this.Factory.CreateRibbonTab();
             this.group1 = this.Factory.CreateRibbonGroup();
-            this.separator1 = this.Factory.CreateRibbonSeparator();
             this.convertBtn = this.Factory.CreateRibbonButton();
+            this.separator1 = this.Factory.CreateRibbonSeparator();
             this.highlightBtn = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
@@ -47,7 +47,7 @@
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.tab1.Groups.Add(this.group1);
-            this.tab1.Label = "Hospital";
+            this.tab1.Label = "Highlight and CodeConvert";
             this.tab1.Name = "tab1";
             // 
             // group1
@@ -58,10 +58,6 @@
             this.group1.Label = " ";
             this.group1.Name = "group1";
             // 
-            // separator1
-            // 
-            this.separator1.Name = "separator1";
-            // 
             // convertBtn
             // 
             this.convertBtn.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
@@ -70,6 +66,10 @@
             this.convertBtn.OfficeImageId = "ConvertTableToText";
             this.convertBtn.ShowImage = true;
             this.convertBtn.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.convertBtn_Click);
+            // 
+            // separator1
+            // 
+            this.separator1.Name = "separator1";
             // 
             // highlightBtn
             // 

@@ -60,6 +60,8 @@ namespace hospitalAddIn
                 form.startConvertBtn.Text = "Reading ICD Codes...";
                 var icdLookupCode = await GetLookupCode(config.icdCodesFilePath);
                 var rng = GetTargetRange(config.icdTextColumn, config.icdRowStart, config.icdRowEnd);
+                // Change Range
+                rng.NumberFormat = "General";
                 rng.Value2 = $"=IFNA(VLOOKUP({config.icdCodeColumn}{config.icdRowStart},{icdLookupCode},2,FALSE),\"\")";
                 PasteValues(rng);
 
