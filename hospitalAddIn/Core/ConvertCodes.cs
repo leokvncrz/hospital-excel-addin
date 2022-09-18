@@ -1,6 +1,8 @@
 ﻿using hospitalAddIn.Forms;
 using System;
+using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -59,17 +61,86 @@ namespace hospitalAddIn
                 // Get ICD Codes
                 form.startConvertBtn.Text = "Reading ICD Codes...";
                 var icdLookupCode = await GetLookupCode(config.icdCodesFilePath);
+                var codeRng = GetTargetRange(config.icdCodeColumn, config.icdRowStart, config.icdRowEnd);
                 var rng = GetTargetRange(config.icdTextColumn, config.icdRowStart, config.icdRowEnd);
                 // Change Range
+                var activeSheet = Globals.ThisAddIn.Application.ActiveWorkbook.ActiveSheet;
                 rng.NumberFormat = "General";
-                rng.Value2 = $"=IFNA(VLOOKUP({config.icdCodeColumn}{config.icdRowStart},{icdLookupCode},2,FALSE),\"\")";
+                var offSet = config.icdRowEnd - codeRng.Count;
+                form.startConvertBtn.Text = "Processing ICD Codes...";
+                form.Update();
+                for (var i = config.icdRowStart; i < config.icdRowEnd; i++) {
+                    form.startConvertBtn.Text = $"Processing ICD Codes ({i - offSet}/{codeRng.Count})";
+                    form.Update();
+                    string icdCode = codeRng[i - offSet].Text;
+                    if (icdCode == "") {
+                        continue; 
+                    }
+                    var targetCell = rng[i - offSet];
+                    targetCell.Formula = "";
+                    if (icdCode.Contains(",")){
+                        var splitCode = icdCode.Split(',');
+                        splitCode.ToList().ForEach((code) => {
+                            var formattedCode = FormatCode(code);
+                            if (targetCell.Formula != "")
+                            {
+                                targetCell.Formula = targetCell.Formula.Replace("=", "");
+                                targetCell.Formula = $"={targetCell.Formula}&\",\"&IFNA(VLOOKUP({formattedCode},{icdLookupCode},2,FALSE),\"NA\")";
+                            }
+                            else { 
+                                targetCell.Formula = $"=IFNA(VLOOKUP({formattedCode},{icdLookupCode},2,FALSE),\"NA\")";
+                            }
+                        });
+                    }
+                    else { 
+                        targetCell.Formula = $"=IFNA(VLOOKUP({FormatCode(icdCode)},{icdLookupCode},2,FALSE),\"\")";
+                    }
+                }
+                //rng.Value2 = $"=IFNA(VLOOKUP({config.icdCodeColumn}{config.icdRowStart},{icdLookupCode},2,FALSE),\"\")";
                 PasteValues(rng);
 
                 // Get CPT Codes
                 form.startConvertBtn.Text = "Reading CPT Codes...";
                 var cptLookupCode = await GetLookupCode(config.cptCodesFilePath);
+                codeRng = GetTargetRange(config.cptCodeColumn, config.cptRowStart, config.cptRowEnd);
                 rng = GetTargetRange(config.cptTextColumn, config.cptRowStart, config.cptRowEnd);
-                rng.Value2 = $"=IFNA(VLOOKUP({config.cptCodeColumn}{config.cptRowStart},{cptLookupCode},2,FALSE),\"\")";
+                rng.NumberFormat = "General";
+                offSet = config.cptRowEnd - codeRng.Count;
+                form.startConvertBtn.Text = "Processing CPT Codes...";
+                form.Update();
+                for (var i = config.cptRowStart; i < config.cptRowEnd; i++)
+                {
+                    form.startConvertBtn.Text = $"Processing CPT Codes ({i - offSet}/{codeRng.Count})";
+                    form.Update();
+                    string cptCode = codeRng[i - offSet].Text;
+                    if (cptCode == "")
+                    {
+                        continue;
+                    }
+                    var targetCell = rng[i - offSet];
+                    targetCell.Formula = "";
+                    if (cptCode.Contains(","))
+                    {
+                        var splitCode = cptCode.Split(',');
+                        splitCode.ToList().ForEach((code) => {
+                            var formattedCode = FormatCode(code);
+                            if (targetCell.Formula != "")
+                            {
+                                targetCell.Formula = targetCell.Formula.Replace("=", "");
+                                targetCell.Formula = $"={targetCell.Formula}&\",\"&IFNA(VLOOKUP({formattedCode},{cptLookupCode},2,FALSE),\"NA\")";
+                            }
+                            else
+                            {
+                                targetCell.Formula = $"=IFNA(VLOOKUP({formattedCode},{cptLookupCode},2,FALSE),\"NA\")";
+                            }
+                        });
+                    }
+                    else
+                    {
+                        targetCell.Formula = $"=IFNA(VLOOKUP({FormatCode(cptCode)},{cptLookupCode},2,FALSE),\"\")";
+                    }
+                }
+                //rng.Value2 = $"=IFNA(VLOOKUP({config.cptCodeColumn}{config.cptRowStart},{cptLookupCode},2,FALSE),\"\")";
                 PasteValues(rng);
 
                 Config.saveConvertCodesConfig(config);
@@ -141,8 +212,14 @@ namespace hospitalAddIn
 
         private void PasteValues(Excel.Range range) {
             range.Select();
-            Globals.ThisAddIn.Application.Selection.Copy();
-            Globals.ThisAddIn.Application.Selection.PasteSpecial(Excel.XlPasteType.xlPasteValues);
+            try
+            {
+                Globals.ThisAddIn.Application.Selection.Copy();
+                Globals.ThisAddIn.Application.Selection.PasteSpecial(Excel.XlPasteType.xlPasteValues);
+            }
+            catch { 
+                // Do Nothing
+            }
         }
 
         private int ColumnLetterToColumnIndex(string columnLetter)
@@ -156,6 +233,17 @@ namespace hospitalAddIn
                 sum += (columnLetter[i] - 'A' + 1);
             }
             return sum;
+        }
+
+        private string FormatCode(string code) {
+            var formattedCode = code;
+            var numberedCode = 0;
+            int.TryParse(code, out numberedCode);
+            if (numberedCode == 0)
+            {
+                formattedCode = $"\"{code.Replace(" ", "")}\"";
+            }
+            return formattedCode;
         }
     }
 }
