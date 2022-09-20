@@ -53,6 +53,8 @@
             this.label9 = new System.Windows.Forms.Label();
             this.cptCodesFilePath = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
+            this.cbICDMultiple = new System.Windows.Forms.CheckBox();
+            this.cbCPTMultiple = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -100,6 +102,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.cbICDMultiple);
             this.groupBox1.Controls.Add(this.icdRowEnd);
             this.groupBox1.Controls.Add(this.icdRowStart);
             this.groupBox1.Controls.Add(this.label3);
@@ -199,6 +202,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.cbCPTMultiple);
             this.groupBox2.Controls.Add(this.cptRowEnd);
             this.groupBox2.Controls.Add(this.cptRowStart);
             this.groupBox2.Controls.Add(this.label5);
@@ -325,6 +329,28 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // cbICDMultiple
+            // 
+            this.cbICDMultiple.AutoSize = true;
+            this.cbICDMultiple.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbICDMultiple.Location = new System.Drawing.Point(237, 0);
+            this.cbICDMultiple.Name = "cbICDMultiple";
+            this.cbICDMultiple.Size = new System.Drawing.Size(100, 17);
+            this.cbICDMultiple.TabIndex = 12;
+            this.cbICDMultiple.Text = "Multiple codes?";
+            this.cbICDMultiple.UseVisualStyleBackColor = true;
+            // 
+            // cbCPTMultiple
+            // 
+            this.cbCPTMultiple.AutoSize = true;
+            this.cbCPTMultiple.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbCPTMultiple.Location = new System.Drawing.Point(237, 0);
+            this.cbCPTMultiple.Name = "cbCPTMultiple";
+            this.cbCPTMultiple.Size = new System.Drawing.Size(100, 17);
+            this.cbCPTMultiple.TabIndex = 12;
+            this.cbCPTMultiple.Text = "Multiple codes?";
+            this.cbCPTMultiple.UseVisualStyleBackColor = true;
+            // 
             // ConvertConfigForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -371,5 +397,7 @@
         public System.Windows.Forms.TextBox cptRowStart;
         public System.Windows.Forms.TextBox cptRowEnd;
         public System.Windows.Forms.Button startConvertBtn;
+        public System.Windows.Forms.CheckBox cbICDMultiple;
+        public System.Windows.Forms.CheckBox cbCPTMultiple;
     }
 }

@@ -69,34 +69,46 @@ namespace hospitalAddIn
                 var offSet = config.icdRowEnd - codeRng.Count;
                 form.startConvertBtn.Text = "Processing ICD Codes...";
                 form.Update();
-                for (var i = config.icdRowStart; i < config.icdRowEnd; i++) {
-                    form.startConvertBtn.Text = $"Processing ICD Codes ({i - offSet}/{codeRng.Count})";
-                    form.Update();
-                    string icdCode = codeRng[i - offSet].Text;
-                    if (icdCode == "") {
-                        continue; 
-                    }
-                    var targetCell = rng[i - offSet];
-                    targetCell.Formula = "";
-                    if (icdCode.Contains(",")){
-                        var splitCode = icdCode.Split(',');
-                        splitCode.ToList().ForEach((code) => {
-                            var formattedCode = FormatCode(code);
-                            if (targetCell.Formula != "")
+                if (form.cbICDMultiple.Checked)
+                {
+                    for (var i = config.icdRowStart; i < config.icdRowEnd; i++)
+                    {
+                        form.startConvertBtn.Text = $"Processing ICD Codes ({i - offSet}/{codeRng.Count})";
+                        form.Update();
+                        string icdCode = codeRng[i - offSet].Text;
+                        if (icdCode == "")
+                        {
+                            continue;
+                        }
+                        var targetCell = rng[i - offSet];
+                        targetCell.Formula = "";
+                        if (icdCode.Contains(","))
+                        {
+                            var splitCode = icdCode.Split(',');
+                            splitCode.ToList().ForEach((code) =>
                             {
-                                targetCell.Formula = targetCell.Formula.Replace("=", "");
-                                targetCell.Formula = $"={targetCell.Formula}&\",\"&IFNA(VLOOKUP({formattedCode},{icdLookupCode},2,FALSE),\"NA\")";
-                            }
-                            else { 
-                                targetCell.Formula = $"=IFNA(VLOOKUP({formattedCode},{icdLookupCode},2,FALSE),\"NA\")";
-                            }
-                        });
-                    }
-                    else { 
-                        targetCell.Formula = $"=IFNA(VLOOKUP({FormatCode(icdCode)},{icdLookupCode},2,FALSE),\"\")";
+                                var formattedCode = FormatCode(code);
+                                if (targetCell.Formula != "")
+                                {
+                                    targetCell.Formula = targetCell.Formula.Replace("=", "");
+                                    targetCell.Formula = $"={targetCell.Formula}&\",\"&IFNA(VLOOKUP({formattedCode},{icdLookupCode},2,FALSE),\"NA\")";
+                                }
+                                else
+                                {
+                                    targetCell.Formula = $"=IFNA(VLOOKUP({formattedCode},{icdLookupCode},2,FALSE),\"NA\")";
+                                }
+                            });
+                        }
+                        else
+                        {
+                            targetCell.Formula = $"=IFNA(VLOOKUP({FormatCode(icdCode)},{icdLookupCode},2,FALSE),\"\")";
+                        }
                     }
                 }
-                //rng.Value2 = $"=IFNA(VLOOKUP({config.icdCodeColumn}{config.icdRowStart},{icdLookupCode},2,FALSE),\"\")";
+                else
+                {
+                    rng.Value2 = $"=IFNA(VLOOKUP({config.icdCodeColumn}{config.icdRowStart},{icdLookupCode},2,FALSE),\"\")";
+                }
                 PasteValues(rng);
 
                 // Get CPT Codes
@@ -108,39 +120,46 @@ namespace hospitalAddIn
                 offSet = config.cptRowEnd - codeRng.Count;
                 form.startConvertBtn.Text = "Processing CPT Codes...";
                 form.Update();
-                for (var i = config.cptRowStart; i < config.cptRowEnd; i++)
+                if (form.cbCPTMultiple.Checked)
                 {
-                    form.startConvertBtn.Text = $"Processing CPT Codes ({i - offSet}/{codeRng.Count})";
-                    form.Update();
-                    string cptCode = codeRng[i - offSet].Text;
-                    if (cptCode == "")
+                    for (var i = config.cptRowStart; i < config.cptRowEnd; i++)
                     {
-                        continue;
-                    }
-                    var targetCell = rng[i - offSet];
-                    targetCell.Formula = "";
-                    if (cptCode.Contains(","))
-                    {
-                        var splitCode = cptCode.Split(',');
-                        splitCode.ToList().ForEach((code) => {
-                            var formattedCode = FormatCode(code);
-                            if (targetCell.Formula != "")
+                        form.startConvertBtn.Text = $"Processing CPT Codes ({i - offSet}/{codeRng.Count})";
+                        form.Update();
+                        string cptCode = codeRng[i - offSet].Text;
+                        if (cptCode == "")
+                        {
+                            continue;
+                        }
+                        var targetCell = rng[i - offSet];
+                        targetCell.Formula = "";
+                        if (cptCode.Contains(","))
+                        {
+                            var splitCode = cptCode.Split(',');
+                            splitCode.ToList().ForEach((code) =>
                             {
-                                targetCell.Formula = targetCell.Formula.Replace("=", "");
-                                targetCell.Formula = $"={targetCell.Formula}&\",\"&IFNA(VLOOKUP({formattedCode},{cptLookupCode},2,FALSE),\"NA\")";
-                            }
-                            else
-                            {
-                                targetCell.Formula = $"=IFNA(VLOOKUP({formattedCode},{cptLookupCode},2,FALSE),\"NA\")";
-                            }
-                        });
-                    }
-                    else
-                    {
-                        targetCell.Formula = $"=IFNA(VLOOKUP({FormatCode(cptCode)},{cptLookupCode},2,FALSE),\"\")";
+                                var formattedCode = FormatCode(code);
+                                if (targetCell.Formula != "")
+                                {
+                                    targetCell.Formula = targetCell.Formula.Replace("=", "");
+                                    targetCell.Formula = $"={targetCell.Formula}&\",\"&IFNA(VLOOKUP({formattedCode},{cptLookupCode},2,FALSE),\"NA\")";
+                                }
+                                else
+                                {
+                                    targetCell.Formula = $"=IFNA(VLOOKUP({formattedCode},{cptLookupCode},2,FALSE),\"NA\")";
+                                }
+                            });
+                        }
+                        else
+                        {
+                            targetCell.Formula = $"=IFNA(VLOOKUP({FormatCode(cptCode)},{cptLookupCode},2,FALSE),\"\")";
+                        }
                     }
                 }
-                //rng.Value2 = $"=IFNA(VLOOKUP({config.cptCodeColumn}{config.cptRowStart},{cptLookupCode},2,FALSE),\"\")";
+                else
+                {
+                    rng.Value2 = $"=IFNA(VLOOKUP({config.cptCodeColumn}{config.cptRowStart},{cptLookupCode},2,FALSE),\"\")";
+                }
                 PasteValues(rng);
 
                 Config.saveConvertCodesConfig(config);
