@@ -186,6 +186,7 @@
     <Compile Include="Core\HighlightKeywords.cs" />
     <Compile Include="Core\Models\ConvertCodesConfigModel.cs" />
     <Compile Include="Core\Models\HighlightKeywordsConfigModel.cs" />
+    <Compile Include="Core\Models\KeywordHighlightModel.cs" />
     <Compile Include="Forms\ConvertConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>

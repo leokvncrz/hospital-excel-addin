@@ -38,7 +38,10 @@ namespace hospitalAddIn
                 var keywordsList = await GetKeywordValues(config.keywordsFilePath);
 
                 foreach (var keyword in keywordsList) {
-                    FindKeywordSetColor(keyword.Key, keyword.Value);
+                    FindKeywordSetColor(
+                        keyword.Key, 
+                        keyword.Value
+                    );
                 }
 
                 Config.saveHighlightKeywordsConfig(config);
@@ -52,7 +55,10 @@ namespace hospitalAddIn
             form.startHighlightBtn.Enabled = true;
         }
 
-        private void FindKeywordSetColor(string keyword, string color) {
+        private void FindKeywordSetColor(
+            string keyword, 
+            KeywordHighlightModel settings
+            ) {
             var sheet = Globals.ThisAddIn.Application.ActiveWorkbook.ActiveSheet;
             Excel.Range xlRange = sheet.UsedRange;
             Excel.Range currentFind = null;
@@ -78,15 +84,20 @@ namespace hospitalAddIn
                     break;
                 }
 
-                currentFind.Interior.Color = color;
+                currentFind.Interior.Color = settings.color;
+                currentFind.Font.Color = settings.fontColor;
+                currentFind.Font.Size = settings.fontSize;
+                currentFind.Font.Bold = settings.isBold;
+                currentFind.Font.Italic = settings.isItalic;
+                currentFind.Font.Underline = settings.isUnderline;
 
                 currentFind = xlRange.FindNext(currentFind);
             }
         }
 
-        private Task<List<KeyValuePair<string,string>>> GetKeywordValues(string excelFilePath)
+        private Task<List<KeyValuePair<string,KeywordHighlightModel>>> GetKeywordValues(string excelFilePath)
         {
-            var result = new List<KeyValuePair<string, string>>();
+            var result = new List<KeyValuePair<string, KeywordHighlightModel>>();
 
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(excelFilePath);
@@ -98,9 +109,17 @@ namespace hospitalAddIn
 
             // Get Keywords and Colors
             for (int i = 2; i <= rowCount; i++) {
-                result.Add(new KeyValuePair<string, string>(
+                KeywordHighlightModel keywordHighlightModel = new KeywordHighlightModel();
+                keywordHighlightModel.color = xlRange.Cells[i, 2].Interior.Color.ToString();
+                keywordHighlightModel.fontColor = xlRange.Cells[i, 2].Font.Color.ToString();
+                keywordHighlightModel.fontSize = xlRange.Cells[i, 2].Font.Size;
+                keywordHighlightModel.isBold = xlRange.Cells[i, 2].Font.Bold;
+                keywordHighlightModel.isItalic = xlRange.Cells[i, 2].Font.Italic;
+                keywordHighlightModel.isUnderline = xlRange.Cells[i, 2].Font.Underline;
+
+                result.Add(new KeyValuePair<string, KeywordHighlightModel>(
                     xlRange.Cells[i, 1].Value2.ToString(),
-                    xlRange.Cells[i, 2].Interior.Color.ToString()
+                    keywordHighlightModel
                 ));
             }
 
