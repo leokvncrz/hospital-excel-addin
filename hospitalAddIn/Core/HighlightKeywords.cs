@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Excel = Microsoft.Office.Interop.Excel;       //microsoft Excel 14 object in references-> COM tab
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Linq;       //microsoft Excel 14 object in references-> COM tab
 
 namespace hospitalAddIn
 {
@@ -35,11 +36,30 @@ namespace hospitalAddIn
             if (File.Exists(config.keywordsFilePath))
             {
                 // Get Keywords
-                var keywordsList = await GetKeywordValues(config.keywordsFilePath);
+                var Task1 = GetKeywordValues(config.keywordsFilePath);
+
+                // Prepare Raw Range
+                var Task2 = Task.Run(PrepareRawRangeModel);
+
+                await Task.WhenAll(Task1,Task2);
+
+                var keywordsList = Task1.Result;
+                var rawRange = Task2.Result;
+
+                var itemsToHighlight = new List<HighlightKeywordItem>();
 
                 foreach (var keyword in keywordsList) {
-                    FindKeywordSetColor(keyword.Key, keyword.Value);
+                    var itemsFound = FindKeywordSetColorV2(
+                        keyword.Key, 
+                        keyword.Value,
+                        rawRange
+                    );
+
+                    itemsToHighlight.AddRange(itemsFound);
                 }
+
+                // Highlight Items
+                highlightItems(itemsToHighlight);
 
                 Config.saveHighlightKeywordsConfig(config);
                 form.Close();
@@ -52,7 +72,10 @@ namespace hospitalAddIn
             form.startHighlightBtn.Enabled = true;
         }
 
-        private void FindKeywordSetColor(string keyword, string color) {
+        private void FindKeywordSetColor(
+            string keyword, 
+            KeywordHighlightModel settings
+            ) {
             var sheet = Globals.ThisAddIn.Application.ActiveWorkbook.ActiveSheet;
             Excel.Range xlRange = sheet.UsedRange;
             Excel.Range currentFind = null;
@@ -78,15 +101,110 @@ namespace hospitalAddIn
                     break;
                 }
 
-                currentFind.Interior.Color = color;
+                currentFind.Interior.Color = settings.color;
+                currentFind.Font.Color = settings.fontColor;
+                currentFind.Font.Size = settings.fontSize;
+                currentFind.Font.Bold = settings.isBold;
+                currentFind.Font.Italic = settings.isItalic;
+                currentFind.Font.Underline = settings.isUnderline;
 
                 currentFind = xlRange.FindNext(currentFind);
             }
         }
 
-        private Task<List<KeyValuePair<string,string>>> GetKeywordValues(string excelFilePath)
+        private List<HighlightKeywordItem> FindKeywordSetColorV2(
+            string keyword,
+            KeywordHighlightModel settings,
+            List<RawRangeModel> rawRangeModel = null)
         {
-            var result = new List<KeyValuePair<string, string>>();
+            var result = new List<HighlightKeywordItem>();
+
+            if (rawRangeModel == null)
+            {
+                return result;
+            }
+
+            // Find for Rows that has Highlight Text
+            var rowMatch = rawRangeModel.FindAll(x => x.concatenatedRow.Contains(keyword.ToLower()));
+
+            foreach (var row in rowMatch)
+            {
+
+                // Check if what column 
+                for (var c = 0; c < row.columns.Length; c++)
+                {
+                    var column = row.columns[c];
+                    if (column == null)
+                    {
+                        continue;
+                    }
+                    // Check if Direct Column Match
+                    if (column.ToString().ToLower().Contains(keyword.ToLower()))
+                    {
+                        HighlightKeywordItem item = new HighlightKeywordItem();
+                        item.row = row.rowNum;
+                        item.column = row.startColumn + c;
+                        item.hightlightSettings = settings;
+                        result.Add(item);
+                    }
+                }
+            }
+            return result;
+        }
+
+        private void highlightItems(List<HighlightKeywordItem> items)
+        {
+            var sheet = Globals.ThisAddIn.Application.ActiveWorkbook.ActiveSheet;
+            Excel.Range xlRange = sheet.UsedRange;
+            var startRow = xlRange.Row;
+            var startColumn = xlRange.Column;
+
+            foreach (var item in items)
+            {
+                var cell = xlRange.Cells[item.row + 1 - startRow, item.column + 1 - startColumn];
+                cell.Interior.Color = item.hightlightSettings.color;
+                cell.Font.Color = item.hightlightSettings.fontColor;
+                cell.Font.Size = item.hightlightSettings.fontSize;
+                cell.Font.Bold = item.hightlightSettings.isBold;
+                cell.Font.Italic = item.hightlightSettings.isItalic;
+                cell.Font.Underline = item.hightlightSettings.isUnderline;
+            }
+        }
+
+        private List<RawRangeModel> PrepareRawRangeModel()
+        {
+            var sheet = Globals.ThisAddIn.Application.ActiveWorkbook.ActiveSheet;
+            var result = new List<RawRangeModel>();
+            Excel.Range xlRange = sheet.UsedRange;
+            var rawRange = xlRange.Value2;
+
+            var startRow = xlRange.Row;
+            var startColumn = xlRange.Column;
+
+            var rowCount = rawRange.GetLength(0);
+            var columnCount = rawRange.GetLength(1);
+
+            for(int i = 1; i < rowCount; i++ )
+            {
+                RawRangeModel row = new RawRangeModel();
+                row.rowNum = startRow - 1 + i;
+                row.startColumn = startColumn;
+                row.columns = new object[columnCount];
+                // Accessing the current rows
+                for (int j = 1; j <= columnCount; j++)
+                {
+                    row.columns[j - 1] = rawRange.GetValue(i, j);
+                }
+                row.concatenatedRow = string.Join(",", row.columns.Where(x => x != null)).ToLower();
+                result.Add(row);
+            }
+
+            return result;
+        }
+
+        private Task<List<KeyValuePair<string,KeywordHighlightModel>>> GetKeywordValues(string excelFilePath)
+        {
+            var result = new List<KeyValuePair<string, KeywordHighlightModel>>();
 
             Excel.Application xlApp = new Excel.Application();
             Excel.Workbook xlWorkbook = xlApp.Workbooks.Open(excelFilePath);
@@ -98,9 +216,17 @@ namespace hospitalAddIn
 
             // Get Keywords and Colors
             for (int i = 2; i <= rowCount; i++) {
-                result.Add(new KeyValuePair<string, string>(
+                KeywordHighlightModel keywordHighlightModel = new KeywordHighlightModel();
+                keywordHighlightModel.color = xlRange.Cells[i, 2].Interior.Color.ToString();
+                keywordHighlightModel.fontColor = xlRange.Cells[i, 2].Font.Color.ToString();
+                keywordHighlightModel.fontSize = xlRange.Cells[i, 2].Font.Size;
+                keywordHighlightModel.isBold = xlRange.Cells[i, 2].Font.Bold;
+                keywordHighlightModel.isItalic = xlRange.Cells[i, 2].Font.Italic;
+                keywordHighlightModel.isUnderline = xlRange.Cells[i, 2].Font.Underline;
+
+                result.Add(new KeyValuePair<string, KeywordHighlightModel>(
                     xlRange.Cells[i, 1].Value2.ToString(),
-                    xlRange.Cells[i, 2].Interior.Color.ToString()
+                    keywordHighlightModel
                 ));
             }
 
