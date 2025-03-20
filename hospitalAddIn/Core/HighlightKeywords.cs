@@ -184,7 +184,7 @@ namespace hospitalAddIn
             var rowCount = rawRange.GetLength(0);
             var columnCount = rawRange.GetLength(1);
 
-            for(int i = 1; i < rowCount; i++ )
+            for(int i = 1; i <= rowCount; i++ )
             {
                 RawRangeModel row = new RawRangeModel();
                 row.rowNum = startRow - 1 + i;
